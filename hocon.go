@@ -79,8 +79,23 @@ func (factory) ParseFile(path string, reader ...FileReader) (*Config, error) {
 	return Parse(src)
 }
 
-// GetValue returns the raw [ConfigValue] at a dotted path.
+// GetValue returns the raw [ConfigValue] at a dotted path. As in Ruby's hocon,
+// each `.` starts a new object level; a key that contains a literal dot (written
+// quoted, e.g. `"a.b" = 1`) is reached with [Config.GetValuePath] instead.
 func (c *Config) GetValue(path string) (*ConfigValue, error) { return c.c.GetValue(path) }
+
+// GetValuePath returns the raw [ConfigValue] at a path given as explicit
+// segments, bypassing dotted-path parsing. This mirrors accessing a literal-dot
+// key in Ruby's hocon by quoting the segment: for `"a.b" = 1`,
+// GetValuePath("a.b") returns 1 whereas GetValue("a.b") looks for nested a.b.
+func (c *Config) GetValuePath(segments ...string) (*ConfigValue, error) {
+	return c.c.GetValuePath(segments...)
+}
+
+// HasPathSegments mirrors Config#has_path? for an explicit, non-dotted path.
+func (c *Config) HasPathSegments(segments ...string) bool {
+	return c.c.HasPathSegments(segments...)
+}
 
 // GetString mirrors Config#get_string.
 func (c *Config) GetString(path string) (string, error) { return c.c.GetString(path) }
