@@ -74,6 +74,53 @@ func TestParseError(t *testing.T) {
 	}
 }
 
+// TestUnquotedSpacesFlowThrough confirms the engine's unquoted-whitespace bug
+// fix (unquoted keys/values with internal spaces) is visible through the Ruby
+// adapter, matching the ruby hocon gem.
+func TestUnquotedSpacesFlowThrough(t *testing.T) {
+	c, err := Parse("valid hocon: string value")
+	if err != nil {
+		t.Fatalf("parse: %v", err)
+	}
+	if v, _ := c.GetString("valid hocon"); v != "string value" {
+		t.Errorf("valid hocon = %q", v)
+	}
+	// Internal whitespace preserved verbatim in a value concatenation.
+	c2, _ := Parse("m = the quick   brown fox")
+	if v, _ := c2.GetString("m"); v != "the quick   brown fox" {
+		t.Errorf("m = %q", v)
+	}
+}
+
+// TestLiteralDotKeyAccess covers the segmented accessors that address a key
+// containing a literal dot (mirrors quoting a path segment in Ruby's hocon).
+func TestLiteralDotKeyAccess(t *testing.T) {
+	c, err := Parse(`"a.b" = 1`)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if _, err := c.GetValue("a.b"); err == nil {
+		t.Error("GetValue should not reach the literal-dot key")
+	}
+	v, err := c.GetValuePath("a.b")
+	if err != nil {
+		t.Fatalf("GetValuePath: %v", err)
+	}
+	if v.Type() != NumberType {
+		t.Errorf("GetValuePath type = %v", v.Type())
+	}
+	if !c.HasPathSegments("a.b") {
+		t.Error("HasPathSegments(\"a.b\") should be true")
+	}
+	if c.HasPathSegments("a", "b") {
+		t.Error("HasPathSegments(\"a\",\"b\") should be false")
+	}
+	// A missing segmented path reports an error.
+	if _, err := c.GetValuePath("nope"); err == nil {
+		t.Error("expected error for missing segmented path")
+	}
+}
+
 func TestGetConfigError(t *testing.T) {
 	c, _ := Parse(`a = 1`)
 	if _, err := c.GetConfig("missing"); err == nil {
