@@ -1,2 +1,4 @@
 github.com/go-hocon/hocon v0.0.0-20260710105712-a32b8614dce2 h1:LnaN/eYtDCXh84bbCra/Wz2zaBEVxYoQ6T0g7Fg2syg=
 github.com/go-hocon/hocon v0.0.0-20260710105712-a32b8614dce2/go.mod h1:2231cAwqF+bztx0saIVdVSKtnvkx1VVxncHSNSEPu/4=
+github.com/go-hocon/hocon v0.0.0-20260805205822-672ad449fdc1 h1:IinZAG/DNLX1Zg7R/Zv/xWtbkegXoRx0mAuDA/FTMsg=
+github.com/go-hocon/hocon v0.0.0-20260805205822-672ad449fdc1/go.mod h1:2231cAwqF+bztx0saIVdVSKtnvkx1VVxncHSNSEPu/4=
